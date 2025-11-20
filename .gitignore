@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.kiro/
+
+# Media files (large video/audio files)
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mov
+*.flac
+
+# OS
+.DS_Store
+Thumbs.db

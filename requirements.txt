@@ -1,0 +1,5 @@
+# OpenAI API client for Whisper transcription
+openai>=1.0.0,<2.0.0
+
+# Environment variable management
+python-dotenv>=1.0.0,<2.0.0
