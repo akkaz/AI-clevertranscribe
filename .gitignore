@@ -29,3 +29,10 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# App specific
+uploads/
+outputs/
+*.db
+*.log
+*.mpeg
