@@ -1,232 +1,116 @@
-# MP4 Transcription Script
+# AI Transcriber
 
-A Python command-line tool that transcribes Italian audio from MP4 video files using OpenAI's Whisper API. The script automatically handles large files by intelligently splitting them into chunks that comply with the Whisper API's 25 MB file size limit.
+A powerful, modern web application for transcribing and analyzing audio/video files using OpenAI's Whisper and GPT models.
 
-## Features
+![AI Transcriber UI](https://via.placeholder.com/800x450.png?text=AI+Transcriber+Dashboard)
 
-- 🎯 **Automatic chunking**: Handles files of any size by splitting large audio into manageable chunks
-- 🇮🇹 **Italian language support**: Optimized for Italian audio transcription
-- 🔄 **Retry logic**: Automatic retry with exponential backoff for API failures
-- 📊 **Progress tracking**: Real-time progress updates during processing
-- 🧹 **Automatic cleanup**: Removes temporary files even if processing fails
-- ⚡ **Efficient processing**: Uses MP3 format for optimal file sizes
+## 🚀 Features
 
-## Prerequisites
+### Core Capabilities
+- **🎙️ High-Accuracy Transcription**: Uses OpenAI's **Whisper-1** model for state-of-the-art speech-to-text conversion.
+- **🧠 AI Analysis**: Automatically generates summaries, action items, and key takeaways using **GPT-4o** or **GPT-3.5**.
+- **🏷️ Semantic Titles**: AI automatically generates concise, context-aware titles for your transcriptions (e.g., "Weekly Team Sync" instead of "recording_001.mp3").
+- **📂 File Support**: Handles `.mp3`, `.mp4`, and `.mpeg` files with automatic audio extraction and chunking for large files.
 
-### System Requirements
+### Modern UI/UX
+- **✨ Sleek Interface**: Dark-themed, responsive design with glassmorphism effects.
+- **📊 Activity Log**: Real-time status updates with color-coded indicators for uploads, processing, and errors.
+- **📝 Interactive Editor**: 
+  - Read-only view for transcriptions to preserve integrity.
+  - Fully editable Analysis Reports.
+  - **Dynamic To-Do Lists**: Add, edit, delete, and check off tasks directly in the UI.
+- **📅 Smart History**: Jobs are automatically grouped by date (Today, Yesterday, This Week, etc.).
 
-- Python 3.8 or higher
-- FFmpeg 4.0 or higher
+### Management & Settings
+- **👥 Client Management**: Organize transcriptions by client.
+- **⚙️ Customizable Settings**:
+  - Choose between **GPT-4o** (Best Quality) and **GPT-3.5** (Faster/Cheaper).
+  - Add custom prompts to guide the AI analysis.
+  - Toggle language settings (Italian, English, Spanish, French, German).
 
-### Installing FFmpeg
+## 🛠️ Tech Stack
 
-**Ubuntu/Debian:**
-```bash
-sudo apt update
-sudo apt install ffmpeg
-```
+- **Backend**: Python 3.8+, FastAPI, SQLAlchemy (SQLite), OpenAI API.
+- **Frontend**: HTML5, Vanilla CSS3 (Variables, Flexbox/Grid), Vanilla JavaScript (ES6+).
+- **Processing**: FFmpeg for audio extraction and manipulation.
 
-**macOS (using Homebrew):**
-```bash
-brew install ffmpeg
-```
+## 📋 Prerequisites
 
-**Windows:**
-Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH.
+- **Python 3.8+**
+- **FFmpeg**: Must be installed and available in your system PATH.
+  - Ubuntu: `sudo apt install ffmpeg`
+  - macOS: `brew install ffmpeg`
+  - Windows: Download from [ffmpeg.org](https://ffmpeg.org/)
+- **OpenAI API Key**: You need a valid API key with access to Whisper and GPT models.
 
-Verify installation:
-```bash
-ffmpeg -version
-```
+## 🚀 Installation & Setup
 
-## Installation
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd transcribe
+   ```
 
-1. Clone or download this repository
+2. **Set up the environment**
+   Create a `.env` file in the root directory:
+   ```env
+   OPENAI_API_KEY=sk-your-actual-api-key-here
+   ```
 
-2. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
+3. **Run the startup script**
+   This script sets up the virtual environment, installs dependencies, and starts the server.
+   ```bash
+   ./start.sh
+   ```
+   
+   *Alternatively, manually:*
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   uvicorn backend.main:app --reload
+   ```
 
-3. Configure your OpenAI API key:
-   - Copy `.env.example` to `.env`:
-     ```bash
-     cp .env.example .env
-     ```
-   - Edit `.env` and add your OpenAI API key:
-     ```
-     OPENAI_API_KEY=your_actual_api_key_here
-     ```
-   - Get your API key from: https://platform.openai.com/api-keys
+4. **Access the App**
+   Open your browser and navigate to: `http://localhost:8000`
 
-## Usage
+## 📖 Usage Guide
 
-### Basic Usage
+1. **Upload**: Drag & drop a file or click to select. Choose language, client, and AI model.
+2. **Process**: Click "Start Processing". Watch the **Activity Log** for real-time updates.
+3. **Review**: Once complete, click the job in the sidebar history.
+4. **Edit**: 
+   - Click the **✏️ Edit** button to modify the report or manage to-do items.
+   - Click **💾 Save** to persist changes.
+5. **Manage**: Use the sidebar to filter by client or delete old transcriptions.
 
-```bash
-python transcribe_mp4.py path/to/your/video.mp4
-```
-
-The script will:
-1. Extract audio from the MP4 file
-2. Check if the audio needs to be split into chunks
-3. Transcribe the audio using OpenAI's Whisper API
-4. Save the transcription to a text file with the same name as your input
-
-### Output
-
-The transcription will be saved as a `.txt` file in the same directory as your input file:
-```
-video.mp4 → video.txt
-```
-
-### Example
-
-```bash
-$ python transcribe_mp4.py meeting_recording.mp4
-
-[STATUS] Validating input file...
-[STATUS] Created temporary directory: /tmp/mp4_transcription_xyz123
-[STATUS] Extracting audio from MP4...
-[STATUS] Audio extraction complete
-[STATUS] Audio file size: 45.32 MB
-[STATUS] File exceeds size limit. Splitting into chunks...
-[STATUS] Created 2 chunks
-[STATUS] Starting transcription of 2 chunk(s)...
-[====================] 100.0% (2/2) - Transcribing chunk 2
-[STATUS] Combining transcription results...
-[STATUS] Cleaning up temporary files...
-
-============================================================
-TRANSCRIPTION COMPLETE
-============================================================
-Total processing time: 3m 45s
-Output saved to: meeting_recording.txt
-============================================================
-```
-
-## How It Works
-
-1. **Audio Extraction**: Extracts audio from MP4 using FFmpeg and converts to MP3 format
-2. **Size Check**: Determines if the audio file exceeds the 25 MB API limit
-3. **Chunking** (if needed): Splits large audio files into time-based chunks under 24 MB each
-4. **Transcription**: Sends each chunk to OpenAI's Whisper API with Italian language specification
-5. **Combination**: Merges all transcription results in sequential order
-6. **Cleanup**: Removes all temporary files automatically
-
-## Configuration
-
-### Environment Variables
-
-Create a `.env` file in the project directory:
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-### Constants
-
-You can modify these constants in `transcribe_mp4.py` if needed:
-
-- `MAX_FILE_SIZE_MB = 24`: Target chunk size (leaves 1 MB buffer)
-- `WHISPER_API_LIMIT_MB = 25`: Actual Whisper API limit
-- `MAX_RETRIES = 3`: Maximum retry attempts for API calls
-
-## Troubleshooting
-
-### FFmpeg Not Found
-
-**Error:** `RuntimeError: FFmpeg is not installed`
-
-**Solution:** Install FFmpeg using the instructions in the Prerequisites section and ensure it's in your system PATH.
-
-### API Key Not Found
-
-**Error:** `OPENAI_API_KEY not found in environment variables`
-
-**Solution:** 
-1. Ensure you have a `.env` file in the project directory
-2. Verify the file contains: `OPENAI_API_KEY=your_actual_key`
-3. Check that your API key is valid at https://platform.openai.com/api-keys
-
-### Authentication Failed
-
-**Error:** `AuthenticationError`
-
-**Solution:**
-1. Verify your API key is correct and active
-2. Check that you have credits available in your OpenAI account
-3. Ensure there are no extra spaces or quotes around the API key in `.env`
-
-### File Not Found
-
-**Error:** `Error: File 'video.mp4' does not exist`
-
-**Solution:** 
-- Check the file path is correct
-- Use absolute paths if relative paths aren't working
-- Ensure the file has a `.mp4` extension
-
-### Rate Limiting
-
-**Error:** `RateLimitError`
-
-**Solution:** The script automatically retries with exponential backoff. If the problem persists:
-- Wait a few minutes before trying again
-- Check your OpenAI API rate limits
-- Consider upgrading your OpenAI plan for higher limits
-
-### Disk Space Issues
-
-**Error:** `IOError` or disk space errors
-
-**Solution:**
-- Ensure you have enough free disk space (at least 2x the size of your input file)
-- The script uses `/tmp` for temporary files - ensure this partition has space
-- Temporary files are automatically cleaned up after processing
-
-### Interrupted Processing
-
-If you interrupt the script (Ctrl+C), temporary files will still be cleaned up automatically.
-
-## API Costs
-
-This script uses OpenAI's Whisper API, which charges based on audio duration:
-- Current pricing: $0.006 per minute of audio
-- Example: A 1-hour video costs approximately $0.36
-
-Check current pricing at: https://openai.com/pricing
-
-## Limitations
-
-- **Input format**: Only MP4 files are supported
-- **Language**: Optimized for Italian (can be modified in `whisper_client.py`)
-- **File size**: No upper limit, but very large files will take longer to process
-- **Internet required**: Requires active internet connection for API calls
-
-## Project Structure
+## 📂 Project Structure
 
 ```
-.
-├── transcribe_mp4.py      # Main orchestration script
-├── audio_processor.py     # Audio extraction and chunking
-├── whisper_client.py      # OpenAI Whisper API integration
-├── file_manager.py        # File and directory management
-├── progress_tracker.py    # User feedback and progress display
-├── models.py              # Data models
-├── requirements.txt       # Python dependencies
-├── .env.example          # Example environment configuration
-└── README.md             # This file
+transcribe/
+├── backend/
+│   ├── api/             # FastAPI routes
+│   ├── services/        # Business logic (Transcription, Analysis)
+│   ├── database.py      # SQLite models & connection
+│   ├── main.py          # App entry point
+│   └── ...
+├── frontend/
+│   ├── css/             # Styles (style.css)
+│   ├── js/              # Logic (app.js)
+│   └── index.html       # Main UI
+├── uploads/             # Temp storage for uploads
+├── outputs/             # Generated files
+├── transcribe.db        # SQLite database
+├── requirements.txt     # Python dependencies
+└── start.sh             # Startup script
 ```
 
-## License
+## ⚠️ Troubleshooting
 
-This project is provided as-is for educational and practical use.
+- **FFmpeg Error**: Ensure FFmpeg is installed and in your PATH.
+- **API Errors**: Check your API key in `.env` and ensure you have OpenAI credits.
+- **Database Issues**: If you encounter schema errors, delete `transcribe.db` and restart the app to regenerate it.
 
-## Support
+## 📄 License
 
-For issues related to:
-- **This script**: Check the Troubleshooting section above
-- **FFmpeg**: Visit https://ffmpeg.org/
-- **OpenAI API**: Visit https://platform.openai.com/docs/
-- **Whisper API**: Visit https://platform.openai.com/docs/guides/speech-to-text
+MIT License - feel free to use and modify for your own projects.
